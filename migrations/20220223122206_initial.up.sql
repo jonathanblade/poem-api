@@ -1,0 +1,6 @@
+CREATE TABLE user_table (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username VARCHAR NOT NULL UNIQUE,
+  password_hash VARCHAR NOT NULL,
+  is_superuser INTEGER NOT NULL
+);
