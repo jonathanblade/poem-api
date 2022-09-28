@@ -27,8 +27,8 @@ pub async fn create_app(test_mode: bool) -> App {
     .await;
     let api = OpenApiService::new(
         (controller::AuthController, controller::UserController),
-        "poem-example-app",
-        "0.1.0",
+        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_VERSION"),
     )
     .server("https://poem-example-app.herokuapp.com/api");
     let ui = api.swagger_ui();
