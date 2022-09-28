@@ -39,8 +39,10 @@ jobs:
       SQLX_FEATURES: native-tls,sqlite
     steps:
       - name: Install dependencies
-        run: |
-          sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config sqlite3
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libssl-dev pkg-config sqlite
+          version: 1.0
 
       - name: Check out repository
         uses: actions/checkout@v3
