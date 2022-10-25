@@ -8,7 +8,7 @@ use crate::service::auth_service::AuthService;
 async fn create_pool(db_url: &str, db_max_conn: u32, db_conn_timeout: Duration) -> SqlitePool {
     match PoolOptions::new()
         .max_connections(db_max_conn)
-        .connect_timeout(db_conn_timeout)
+        .acquire_timeout(db_conn_timeout)
         .connect(db_url)
         .await
     {
