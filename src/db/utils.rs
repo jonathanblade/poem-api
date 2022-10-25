@@ -1,6 +1,5 @@
-use sqlx::{migrate, pool::PoolOptions, SqlitePool};
+use sqlx::{migrate, migrate::MigrateDatabase, pool::PoolOptions, Sqlite, SqlitePool};
 use std::time::Duration;
-use tokio::process::Command;
 
 use crate::db::repo::UserRepo;
 use crate::scheme::InsertUser;
@@ -25,19 +24,26 @@ async fn run_migrations(pool: &SqlitePool) {
     }
 }
 
-async fn reset_db(db_url: &str) {
-    Command::new("sqlx")
-        .env("DATABASE_URL", db_url)
-        .args(["database", "drop", "-y"])
-        .output()
+async fn create_db(db_url: &str) {
+    if !Sqlite::database_exists(db_url)
         .await
-        .expect("Failed to drop database.");
-    Command::new("sqlx")
-        .env("DATABASE_URL", db_url)
-        .args(["database", "create"])
-        .output()
+        .expect("Failed to check database exists.")
+    {
+        Sqlite::create_database(db_url)
+            .await
+            .expect("Failed to create database.");
+    }
+}
+
+async fn drop_db(db_url: &str) {
+    if Sqlite::database_exists(db_url)
         .await
-        .expect("Failed to create database.");
+        .expect("Failed to check database exists.")
+    {
+        Sqlite::drop_database(db_url)
+            .await
+            .expect("Failed to drop database.")
+    }
 }
 
 async fn populate_db_for_tests(pool: &SqlitePool) {
@@ -57,8 +63,9 @@ async fn populate_db_for_tests(pool: &SqlitePool) {
 
 pub async fn prepare_db(db_url: &str, test_mode: bool) -> SqlitePool {
     if test_mode {
-        reset_db(db_url).await;
+        drop_db(db_url).await;
     }
+    create_db(db_url).await;
     let pool = create_pool(db_url, 5, Duration::from_secs(5)).await;
     run_migrations(&pool).await;
     if test_mode {
