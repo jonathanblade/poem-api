@@ -2,10 +2,11 @@ mod common;
 
 use poem::http::StatusCode;
 use serde_json::{json, Value as JsonValue};
+use sqlx::SqlitePool;
 
-#[tokio::test]
-async fn get_users() {
-    let mut client = common::TestClient::new().await;
+#[sqlx::test(fixtures("user_table"))]
+async fn get_users(pool: SqlitePool) {
+    let mut client = common::TestClient::new(pool).await;
 
     client.sign_in("admin", "12345").await;
 
@@ -37,9 +38,9 @@ async fn get_users() {
     );
 }
 
-#[tokio::test]
-async fn get_user() {
-    let mut client = common::TestClient::new().await;
+#[sqlx::test(fixtures("user_table"))]
+async fn get_user(pool: SqlitePool) {
+    let mut client = common::TestClient::new(pool).await;
 
     client.sign_in("admin", "12345").await;
 

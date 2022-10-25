@@ -16,15 +16,7 @@ use sqlx::SqlitePool;
 pub type App = AddDataEndpoint<CorsEndpoint<middleware::ErrorMiddlewareImpl<Route>>, SqlitePool>;
 
 // -> impl Endpoint
-pub async fn create_app(test_mode: bool) -> App {
-    let pool = db::utils::prepare_db(
-        &format!(
-            "sqlite://{}",
-            std::env::var("APP_DB_FILE").unwrap_or("poem-example-app.db".to_string())
-        ),
-        test_mode,
-    )
-    .await;
+pub async fn create_app(pool: SqlitePool) -> App {
     let api = OpenApiService::new(
         (controller::AuthController, controller::UserController),
         env!("CARGO_PKG_NAME"),

@@ -3,6 +3,7 @@ use poem::{
     test::{TestClient as PoemTestClient, TestRequestBuilder},
 };
 use serde_json::{json, Value as JsonValue};
+use sqlx::SqlitePool;
 
 pub struct TestClient {
     client: PoemTestClient<app::App>,
@@ -10,8 +11,8 @@ pub struct TestClient {
 }
 
 impl TestClient {
-    pub async fn new() -> TestClient {
-        let app = app::create_app(true).await;
+    pub async fn new(pool: SqlitePool) -> TestClient {
+        let app = app::create_app(pool).await;
         let client = PoemTestClient::new(app);
         TestClient {
             client,
