@@ -1,4 +1,5 @@
 pub mod common;
+pub mod context;
 pub mod controller;
 pub mod db;
 pub mod middleware;
@@ -11,12 +12,12 @@ use poem::{
     EndpointExt, Route,
 };
 use poem_openapi::OpenApiService;
-use sqlx::SqlitePool;
 
-pub type App = AddDataEndpoint<CorsEndpoint<middleware::ErrorMiddlewareImpl<Route>>, SqlitePool>;
+pub type App =
+    AddDataEndpoint<CorsEndpoint<middleware::ErrorMiddlewareImpl<Route>>, context::AppContext>;
 
 // -> impl Endpoint
-pub async fn create_app(pool: SqlitePool) -> App {
+pub async fn create_app(ctx: context::AppContext) -> App {
     let api = OpenApiService::new(
         (controller::AuthController, controller::UserController),
         env!("CARGO_PKG_NAME"),
@@ -29,6 +30,6 @@ pub async fn create_app(pool: SqlitePool) -> App {
         .nest("/", ui)
         .with(middleware::ErrorMiddleware)
         .with(Cors::new())
-        .data(pool);
+        .data(ctx);
     app
 }

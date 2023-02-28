@@ -1,5 +1,3 @@
-use std::time::Instant;
-
 use poem::{Endpoint, IntoResponse, Middleware, Request, Response, Result};
 
 use crate::common::AppError;
@@ -23,24 +21,12 @@ impl<E: Endpoint> Endpoint for ErrorMiddlewareImpl<E> {
     type Output = Response;
 
     async fn call(&self, req: Request) -> Result<Self::Output> {
-        let method = req.method().clone();
         let uri = req.uri().clone();
-        let start = Instant::now();
         let resp = self.ep.call(req).await;
-        let elapsed = start.elapsed();
         match resp {
-            Ok(resp) => {
-                let resp = resp.into_response();
-                println!(
-                    "{} -> {} {} - {} ms",
-                    method,
-                    uri,
-                    resp.status().as_u16(),
-                    elapsed.as_millis()
-                );
-                Ok(resp)
-            }
+            Ok(resp) => Ok(resp.into_response()),
             Err(e) => {
+                println!("ERROR: {:?}", e);
                 if e.is::<poem::error::NotFoundError>() {
                     return Ok(AppError::ResourceNotFound(uri.to_string()).into_response());
                 }

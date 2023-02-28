@@ -1,8 +1,8 @@
 use poem::web::Data;
 use poem_openapi::{payload::Json, OpenApi};
-use sqlx::SqlitePool;
 
 use super::Tag;
+use crate::context::AppContext;
 use crate::response::{PostResponseError, PostResponseSuccess};
 use crate::scheme::{AccessToken, Credentials};
 use crate::service::auth_service::AuthService;
@@ -15,10 +15,10 @@ impl AuthController {
     #[oai(path = "/token", method = "post")]
     async fn sign_in(
         &self,
-        pool: Data<&SqlitePool>,
+        ctx: Data<&AppContext>,
         credentials: Json<Credentials>,
     ) -> Result<PostResponseSuccess<AccessToken>, PostResponseError> {
-        let token = AuthService::sign_in(pool.0, credentials.0).await?;
+        let token = AuthService::sign_in(&ctx.db_pool, credentials.0).await?;
         let resp = PostResponseSuccess::new(token);
         Ok(resp)
     }
