@@ -54,7 +54,7 @@ impl<E: Endpoint> Endpoint for ErrorMiddlewareImpl<E> {
                         }
                     }
                 }
-                Ok(e.into_response())
+                Ok(AppError::UnhandledError(e.to_string()).into_response())
             }
         }
     }

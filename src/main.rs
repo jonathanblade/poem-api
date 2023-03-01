@@ -1,4 +1,3 @@
-use app::context::AppContext;
 use poem::{listener::TcpListener, Server};
 
 #[tokio::main]
@@ -10,8 +9,7 @@ async fn main() -> Result<(), std::io::Error> {
         std::env::var("APP_DB_FILE").unwrap_or("poem-example-app.db".to_string())
     ))
     .await;
-    let ctx = AppContext::new(pool);
-    let app = app::create_app(ctx).await;
+    let app = app::create_app(pool).await;
     let listener = TcpListener::bind(&addr);
     Server::new(listener).run(app).await
 }

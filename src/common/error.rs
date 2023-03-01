@@ -8,6 +8,8 @@ use serde_json::json;
 use sqlx::Error as SqlxError;
 use thiserror::Error as ThisError;
 
+use super::format_error_message;
+
 #[derive(Debug, ThisError)]
 pub enum AppError {
     // 400
@@ -46,6 +48,8 @@ pub enum AppError {
     InternalError,
     #[error("Database connection pool timed out.")]
     PoolTimedOut,
+    #[error("{0}")]
+    UnhandledError(String),
 }
 
 impl From<SqlxError> for AppError {
@@ -115,7 +119,7 @@ impl IntoResponse for AppError {
 fn build_response_error(status: StatusCode, reason: String) -> Response {
     let body = Body::from_json(json!({
         "status": "error".to_string(),
-        "reason": reason,
+        "reason": format_error_message(reason),
     }))
     .unwrap();
     Response::builder()
