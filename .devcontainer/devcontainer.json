@@ -1,0 +1,22 @@
+{
+	"name": "Poem API",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "rust",
+	"shutdownAction": "stopCompose",
+	"workspaceFolder": "/workspace",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"search.exclude": {
+					"**/target": true
+				},
+				"files.watcherExclude": {
+					"**/target": true
+				}
+			},
+			"extensions": [
+				"rust-lang.rust-analyzer"
+			]
+		}
+	}
+}
